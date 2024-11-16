@@ -44,22 +44,27 @@ with st.sidebar:
     year_input = st.slider("Year", min_value = 1880, max_value = 2023, value = 2000)
     n_names = st.radio('Number of names per sex', [3, 5, 10])
 
-tab1, tab2 = st.tabs(['Names', 'Year'])
+tab1, tab2, tab3 = st.tabs(['Names', 'Year', 'Download Data'])
 
 with tab1:
     name_data = data[data['name'] == input_name].copy()
+    st.write(f"Input name = {input_name}")
+    st.dataframe(name_data[['sex', 'count', 'year']])
     fig = px.line(name_data, x = 'year', y = 'count', color = 'sex')
     st.plotly_chart(fig) 
 
 with tab2:
-    fig2 = top_names_plot(data, year = year_input, n = n_names)
-    st.plotly_chart(fig2)
+    col1, col2 = st.columns(2)
+    with col1:
+        fig2 = top_names_plot(data, year = year_input, n = n_names)
+        st.plotly_chart(fig2)
+    with col2:
+        st.write('Unique Names Table')
+        st.write(f"Input year = {year_input}")
+        output_table = unique_names_summary(data, year_input)
+        st.dataframe(output_table)
 
-    st.write('Unique Names Table')
-    output_table = unique_names_summary(data, 2000)
-    st.dataframe(output_table)
-
-
-
+with tab3:
+    st.download_button(label = 'Download Names Data', data = data.to_csv(index = False), file_name = "namesdata.csv")
 
 
